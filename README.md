@@ -1,91 +1,210 @@
-# 📧 **Email Spam Detection System**
+# 📧 SPAM-NOTSPAM DETECTOR — Hybrid AI Email Classification
 
-@ZaidSaudagar 
+> A full-stack intelligent email security system that combines **Classic Machine Learning** with **Generative AI** for real-time spam detection.
 
-
-*A Machine Learning--Based Approach for Identifying Spam Emails*
+---
 
 ## 📌 Overview
 
-Spam emails continue to be one of the largest digital
-nuisances---ranging from promotional clutter to malicious phishing
-attempts. This project focuses on developing a machine learning model
-that automatically classifies emails as spam or ham (legitimate) using
-text-based features.
+**SPAM-NOTSPAM DETECTOR** is a hybrid AI-powered tool designed to classify emails as **Spam** or **Not Spam** with high accuracy. It uses a dual-engine approach:
 
-## 🎯 Project Goals
+- **Primary Engine** — A Naive Bayes classifier trained on a labeled SMS/email dataset for instant, low-latency predictions.
+- **Fallback Engine** — Google's Gemini Pro LLM, which activates automatically when the primary model is uncertain (confidence < 70%) or when manually triggered via the **AI Mode** toggle.
 
--   Build an accurate, automated spam classification system
--   Reduce false negatives and improve email security
--   Analyze keyword patterns in spam messages
--   Compare multiple ML algorithms to find the best performer
--   Provide a clear, reproducible workflow
+This intelligent routing ensures both **speed** (millisecond-level responses for clear-cut cases) and **accuracy** (deep semantic analysis for ambiguous content).
 
-## 📂 Dataset Details
+---
 
--   Labeled email dataset with spam and ham messages
--   Spam: 13.41% \| Ham: 86.59%
--   Preprocessing: cleaning, tokenization, stopword removal, TF-IDF
-    vectorization
+## 🎯 Key Features
 
-## 🔍 Exploratory Data Analysis (EDA)
+| Feature | Description |
+|---------|-------------|
+| 🔀 **Hybrid Detection** | Combines Naive Bayes (ML) + Gemini Pro (Gen AI) with automatic fallback |
+| ⚡ **Real-Time API** | FastAPI backend with sub-second response times |
+| 🧠 **AI Mode Toggle** | Force Gemini Pro analysis for maximum accuracy |
+| 🎨 **Premium Dashboard** | Dark-themed UI with glassmorphism, animations, and responsive design |
+| 📊 **Confidence Scoring** | Shows prediction confidence percentage alongside the verdict |
+| 🔍 **Explainability** | Displays which method was used and why the email was flagged |
 
-Common spam keywords identified: **"free", "call", "txt", "text",
-"now"**
+---
 
-Spam emails generally contain short, direct, urgent-language phrases.
+## 🏗️ Architecture
 
-## 🧠 Machine Learning Models Used
+```
+┌─────────────────────────────────────────────────────────┐
+│                    FRONTEND (Next.js 16)                │
+│         Dark UI · Glassmorphism · Framer Motion         │
+│                  http://localhost:3000                   │
+└──────────────────────┬──────────────────────────────────┘
+                       │ POST /predict
+                       ▼
+┌─────────────────────────────────────────────────────────┐
+│                   BACKEND (FastAPI)                     │
+│                  http://localhost:8000                   │
+│                                                         │
+│   ┌───────────────┐    confidence < 70%    ┌──────────┐ │
+│   │  Naive Bayes  │ ──────────────────────▶│  Gemini  │ │
+│   │  (Primary)    │    or AI Mode ON       │  Pro API │ │
+│   └───────────────┘                        └──────────┘ │
+│         ▲                                               │
+│         │                                               │
+│   ┌─────────────┐                                       │
+│   │ spam_model   │                                      │
+│   │ .joblib      │                                      │
+│   └─────────────┘                                       │
+└─────────────────────────────────────────────────────────┘
+```
 
--   Multinomial Naive Bayes (Best Performer)
--   SVM
--   Decision Tree
--   Logistic Regression
+---
 
-## 📊 Model Performance
+## 📂 Project Structure
 
-Multinomial Naive Bayes achieved: - **Recall:** 98.49% - **High accuracy
-& F1-score** - Fast and efficient for text-based classification
+```
+SPAM-NOTSPAM DETECTOR/
+├── server/                  # Backend — FastAPI + ML Engine
+│   ├── app.py               # API server with /predict endpoint
+│   ├── brain/
+│   │   └── spam_model.joblib # Pre-trained Naive Bayes pipeline
+│   └── .env                 # Gemini API key (not committed)
+│
+├── web/                     # Frontend — Next.js 16 Dashboard
+│   ├── app/
+│   │   ├── page.tsx         # Main UI (input, results, animations)
+│   │   ├── layout.tsx       # Root layout with dark theme
+│   │   └── globals.css      # Global styles + glassmorphism utilities
+│   └── package.json
+│
+├── scripts/
+│   └── rebuild_brain.py     # Script to retrain the ML model
+│
+├── dataset/
+│   └── spam.csv             # Labeled dataset (5,572 samples)
+│
+└── requirements.txt         # Python dependencies
+```
 
-## 🛠️ Technologies Used
+---
 
--   Python\
--   Pandas, NumPy\
--   Scikit-learn\
--   Matplotlib, Seaborn\
--   NLTK / Regex\
--   Jupyter Notebook
+## 🚀 How to Run
 
-## 📐 Workflow
+### Prerequisites
+- **Python 3.10+** — [Download](https://python.org)
+- **Node.js 18+** — [Download](https://nodejs.org)
+- **Google Gemini API Key** — [Get one free](https://aistudio.google.com/apikey) *(optional, only for AI Mode)*
 
-1.  Import & inspect dataset\
-2.  Preprocess and clean data\
-3.  Perform EDA\
-4.  Vectorize text using TF-IDF\
-5.  Model training\
-6.  Evaluation & comparison\
-7.  Final model selection\
-8.  Insights & conclusion
+### 1. Install Python Dependencies
+```bash
+pip install -r requirements.txt
+```
 
-## 🏁 Results & Conclusion
+### 2. Configure API Key
+Create or edit `server/.env`:
+```env
+GEMINI_API_KEY=your_api_key_here
+```
 
-The project demonstrates that ML can effectively filter spam by
-analyzing email text patterns. With strong recall and accuracy, Naive
-Bayes proved highly suitable for this task. Future enhancements include
-deep learning approaches, deployment APIs, and real‑time filtering.
+### 3. Start the Backend
+```bash
+cd server
+python app.py
+```
+> Backend runs at **http://localhost:8000**
 
-## 🚀 Future Enhancements
+### 4. Start the Frontend *(new terminal)*
+```bash
+cd web
+npm install
+npm run dev
+```
+> Frontend runs at **http://localhost:3000**
 
--   Add LSTM/BERT models\
--   Real‑time email classification API\
--   GUI or web interface\
--   Model deployment with pickle
+### 5. Open the App
+Navigate to **http://localhost:3000** — paste any email content and click **Check Now**.
 
+---
 
-## 🤝 Contribution
+## 🔌 API Reference
 
-Fork the repo, open issues, and submit PRs to improve the system.
+### `POST /predict`
 
-## ⭐ Show Your Support
+Classify an email as spam or not spam.
 
-Star ⭐ the repository if you find it helpful!
+**Request Body:**
+```json
+{
+  "content": "Congratulations! You've won a free iPhone. Click here now!",
+  "use_ai": false
+}
+```
+
+**Response:**
+```json
+{
+  "is_spam": true,
+  "confidence": 0.97,
+  "method": "Classic ML (Naive Bayes)",
+  "explanation": "Detected using text pattern frequency."
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `content` | string | The email text to analyze |
+| `use_ai` | boolean | Force Gemini Pro analysis (default: `false`) |
+
+### `GET /`
+Health check endpoint. Returns `{ "status": "healthy" }`.
+
+---
+
+## 🧠 How It Works
+
+1. **User submits email text** via the web dashboard.
+2. **Naive Bayes pipeline** (CountVectorizer → MultinomialNB) makes an instant prediction.
+3. **Decision logic** kicks in:
+   - If confidence **≥ 70%** → return the ML result immediately.
+   - If confidence **< 70%** or **AI Mode is ON** → forward to Gemini Pro for deeper analysis.
+4. **Result displayed** with verdict (Spam / Not Spam), confidence %, method used, and explanation.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | Python, FastAPI, Uvicorn |
+| **ML Model** | Scikit-learn (Naive Bayes + CountVectorizer Pipeline) |
+| **Generative AI** | Google Gemini Pro via `google-generativeai` |
+| **Frontend** | Next.js 16, React 19, TypeScript |
+| **Styling** | Tailwind CSS 4, Framer Motion |
+| **Icons** | Lucide React |
+| **Dataset** | SMS Spam Collection (5,572 labeled messages) |
+
+---
+
+## 🔁 Retraining the Model
+
+To retrain the Naive Bayes model on the dataset:
+
+```bash
+cd scripts
+python rebuild_brain.py
+```
+
+This will generate a new `spam_model.joblib` from `dataset/spam.csv`.
+
+---
+
+## 🏁 Future Enhancements
+
+- [ ] Add support for email file attachments (.eml, .msg)
+- [ ] Implement scan history with local storage
+- [ ] Export detection reports as PDF
+- [ ] Add batch email scanning mode
+- [ ] Deploy as a hosted web application
+
+---
+
+<div align="center">
+  <sub>Built with 🛡️ for email security</sub>
+</div>
